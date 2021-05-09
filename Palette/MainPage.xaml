@@ -10,7 +10,7 @@
     mc:Ignorable="d"
    >
     <Grid>
-        <local:MyUserControl1 HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        <local:ColorPicker HorizontalAlignment="Center" VerticalAlignment="Center"/>
         <!--<local:MyUserControl3/>-->
         <!--<local:RoundPalette />-->
         <!--<canvas:CanvasControl x:Name="Canvas" Draw="Canvas_Draw" ClearColor="Black"/>-->

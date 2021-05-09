@@ -12,7 +12,7 @@ using Windows.UI.Xaml.Shapes;
 
 namespace Palette
 {
-    public sealed partial class MyUserControl1 : UserControl
+    public sealed partial class ColorPicker : UserControl
     {
 
         #region Win32API
@@ -31,7 +31,7 @@ namespace Palette
         #endregion
         public Path WheelPath { get; set; }
 
-        public MyUserControl1()
+        public ColorPicker()
         {
             this.InitializeComponent();
         }
