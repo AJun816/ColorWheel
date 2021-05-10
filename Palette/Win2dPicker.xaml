@@ -1,16 +1,19 @@
-﻿<Page
-    x:Class="Palette.MainPage"
+﻿<UserControl
+    x:Class="Palette.Win2dPicker"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:canvas="using:Microsoft.Graphics.Canvas.UI.Xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="using:Palette"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+    d:DesignHeight="400"
+    d:DesignWidth="400"
     mc:Ignorable="d">
 
     <Grid>
-        <local:Win2dPicker />
+        <canvas:CanvasControl
+            x:Name="Canvas"
+            Background="Black"
+            Draw="Canvas_Draw" />
     </Grid>
-
-</Page>
+</UserControl>
