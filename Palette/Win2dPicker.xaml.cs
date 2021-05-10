@@ -47,8 +47,6 @@ namespace Palette
             float radiusMax = _radiusMax;
             float radiusMin = _radiusMin;
 
-
-       
             // 创建路径变量                                              
             int colorCount = wheelColors.Count;     // 颜色数量
             Double angel = 360.0 / colorCount;      // 计算夹角(注：计算参数必须为浮点数，否则结果为0)
@@ -114,7 +112,7 @@ namespace Palette
             _isGetColor = true;
         }
 
-        private  void canvasControl_PointerMoved(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
+        private void canvasControl_PointerMoved(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
             e.Handled = true;
 
@@ -127,30 +125,25 @@ namespace Palette
                 Point p3 = new Point(500, 0);
                 Point p4 = new Point(1000, 0);
 
-                if (newPointer.X> pointer.Position.X)
+                if (newPointer.X > pointer.Position.X)
                 {
 
                 }
-
 
                 double x = canvasControl.Width / wheelColors.Count;
                 double y = canvasControl.Height / wheelColors.Count;
 
-                
-
-
-                if (p.Position.X > p.Position.Y)
+                if (pointer.Position.X > pointer.Position.Y)
                 {
-                    _pointGetColor = (int)(p.Position.X / x);
+                    _pointGetColor = (int)(pointer.Position.X / x);
                     canvasControl.Invalidate();
                 }
                 else
                 {
-                    _pointGetColor = (int)(p.Position.Y / y);
+                    _pointGetColor = (int)(pointer.Position.Y / y);
                     canvasControl.Invalidate();
                 }
             }
-
         }
 
         private void canvasControl_PointerReleased(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
