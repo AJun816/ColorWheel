@@ -320,7 +320,9 @@
             Draw="Canvas_Draw"
             PointerPressed="canvasControl_PointerPressed"
             PointerMoved="canvasControl_PointerMoved"
-            PointerReleased="canvasControl_PointerReleased"/>
+            PointerReleased="canvasControl_PointerReleased"
+            PointerExited="canvasControl_PointerExited"
+            />
 
 
         <Slider
