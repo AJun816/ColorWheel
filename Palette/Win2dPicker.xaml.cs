@@ -13,11 +13,11 @@ namespace Palette
 {
     public sealed partial class Win2dPicker : UserControl
     {
-        private readonly Vector2 _centerVector;
-        private readonly float _radiusMax;
-        private readonly float _radiusMin;
-        private readonly float _radiusCenter;
-        private readonly float _radiusGetColor;
+        private readonly Vector2 _centerVector = new Vector2() { X = 200, Y = 200 };
+        private readonly float _radiusMax = 120;
+        private readonly float _radiusMin = 70;
+        private readonly float _radiusCenter = 40;
+        private readonly float _radiusGetColor = 20;
 
         byte Argb_A = 255;
         int _pointGetColor;
@@ -28,13 +28,6 @@ namespace Palette
         public Win2dPicker()
         {
             this.InitializeComponent();
-
-            _centerVector = new Vector2() { X = 200, Y = 200 };
-            _radiusMax = 120;
-            _radiusMin = 70;
-            _radiusCenter = 40;
-            _radiusGetColor = 20;
-
             CreateWheelColors();
         }
 
