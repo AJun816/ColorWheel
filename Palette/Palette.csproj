@@ -134,6 +134,9 @@
       <DependentUpon>ColorPicker.xaml</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Win2dCanvasVirtualPicker.xaml.cs">
+      <DependentUpon>Win2dCanvasVirtualPicker.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Win2dPicker.xaml.cs">
       <DependentUpon>Win2dPicker.xaml</DependentUpon>
     </Compile>
@@ -163,6 +166,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="ColorPicker.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Win2dCanvasVirtualPicker.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

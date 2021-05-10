@@ -1,4 +1,5 @@
 ﻿using Microsoft.Graphics.Canvas.Geometry;
+using Microsoft.Graphics.Canvas.UI.Xaml;
 using System;
 using System.Collections.Generic;
 using System.Numerics;
@@ -113,7 +114,7 @@ namespace Palette
             _isGetColor = true;
         }
 
-        private void canvasControl_PointerMoved(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
+        private  void canvasControl_PointerMoved(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
             e.Handled = true;
 
