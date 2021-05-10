@@ -1,4 +1,5 @@
 ﻿using Microsoft.Graphics.Canvas.Geometry;
+using Microsoft.Graphics.Canvas.UI.Xaml;
 using System;
 using System.Collections.Generic;
 using System.Numerics;
@@ -34,6 +35,17 @@ namespace Palette
             _radiusCenter = 40;
             _radiusGetColor = 20;
 
+            CreateWheelColors();
+        }
+
+        private void CreateWheelColors()
+        {
+            for (byte i = 0; i < 255; i++) wheelColors.Add(Color.FromArgb(Argb_A, 255, i, 0));
+            for (byte i = 255; i > 0; i--) wheelColors.Add(Color.FromArgb(Argb_A, i, 255, 0));
+            for (byte i = 0; i < 255; i++) wheelColors.Add(Color.FromArgb(Argb_A, 0, 255, i));
+            for (byte i = 255; i > 0; i--) wheelColors.Add(Color.FromArgb(Argb_A, 0, i, 255));
+            for (byte i = 0; i < 255; i++) wheelColors.Add(Color.FromArgb(Argb_A, i, 0, 255));
+            for (byte i = 255; i > 0; i--) wheelColors.Add(Color.FromArgb(Argb_A, 255, 0, i));
         }
 
         private void Canvas_Draw(Microsoft.Graphics.Canvas.UI.Xaml.CanvasControl sender, Microsoft.Graphics.Canvas.UI.Xaml.CanvasDrawEventArgs args)
@@ -43,13 +55,6 @@ namespace Palette
             float radiusMax = _radiusMax;
             float radiusMin = _radiusMin;
 
-
-            for (byte i = 0; i < 255; i++) wheelColors.Add(Color.FromArgb(Argb_A, 255, i, 0));
-            for (byte i = 255; i > 0; i--) wheelColors.Add(Color.FromArgb(Argb_A, i, 255, 0));
-            for (byte i = 0; i < 255; i++) wheelColors.Add(Color.FromArgb(Argb_A, 0, 255, i));
-            for (byte i = 255; i > 0; i--) wheelColors.Add(Color.FromArgb(Argb_A, 0, i, 255));
-            for (byte i = 0; i < 255; i++) wheelColors.Add(Color.FromArgb(Argb_A, i, 0, 255));
-            for (byte i = 255; i > 0; i--) wheelColors.Add(Color.FromArgb(Argb_A, 255, 0, i));
             // 创建路径变量                                              
             int colorCount = wheelColors.Count;     // 颜色数量
             Double angel = 360.0 / colorCount;      // 计算夹角(注：计算参数必须为浮点数，否则结果为0)
@@ -58,6 +63,8 @@ namespace Palette
 
             wheelColors.ForEach((color) =>
             {
+                color.A = Argb_A;
+
                 pointX = centerX + radiusMin * (float)Math.Cos(rotate * Math.PI / 180);
                 pointY = centerY + radiusMin * (float)Math.Sin(rotate * Math.PI / 180);
                 Vector2 point1 = new Vector2(pointX, pointY);
@@ -104,6 +111,7 @@ namespace Palette
         private void slider_ValueChanged(object sender, Windows.UI.Xaml.Controls.Primitives.RangeBaseValueChangedEventArgs e)
         {
             Argb_A = (Byte)slider.Value;
+            _isGetColor = false;
             canvasControl.Invalidate();
         }
 
@@ -113,7 +121,7 @@ namespace Palette
             _isGetColor = true;
         }
 
-        private void canvasControl_PointerMoved(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
+        private  void canvasControl_PointerMoved(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
             e.Handled = true;
 
