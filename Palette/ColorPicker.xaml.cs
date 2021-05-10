@@ -157,31 +157,7 @@ namespace Palette
 
         private void BlackEllipse_DragDelta(object sender, Windows.UI.Xaml.Controls.Primitives.DragDeltaEventArgs e)
         {
-            //Thumb thumb = sender as Thumb;
-            //Point point = new Point() { X = 50, Y = 60 };
-            //double redius = (100 - 60) / 2 + 60;
-            //var p = GetPoints(point, (int)redius, 500);
 
-            //int h = (int)Math.Abs(e.HorizontalChange);
-            //int v = (int)Math.Abs(e.VerticalChange);
-
-            //Canvas.SetLeft(thumb, e.HorizontalChange);
-            //Canvas.SetTop(thumb, e.VerticalChange);
-
-            ////if (h > v && h > 0)
-            ////{
-            ////    Canvas.SetLeft(thumb, p[h].X - 15);
-            ////    Canvas.SetTop(thumb, p[h].Y - 15);
-            ////}
-            ////else if (v > h && v > 0)
-            ////{
-            ////    Canvas.SetLeft(thumb, p[v].X - 15);
-            ////    Canvas.SetTop(thumb, p[v].Y - 15);
-            ////}
-
-            //Color color = GetColor((int)p[v].X - 15,(int)p[v].Y - 15);
-            ////Color color = GetColor(900, 583);
-            //ellipse.Fill = new SolidColorBrush(color);
         }
 
         /// <summary>

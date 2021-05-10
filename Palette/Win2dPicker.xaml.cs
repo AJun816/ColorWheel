@@ -1,13 +1,11 @@
-﻿
-
-//https://go.microsoft.com/fwlink/?LinkId=234236 上介绍了“用户控件”项模板
-
-using Microsoft.Graphics.Canvas.Geometry;
+﻿using Microsoft.Graphics.Canvas.Geometry;
 using System;
 using System.Collections.Generic;
-
 using System.Numerics;
+using System.Threading;
+using Windows.Foundation;
 using Windows.UI;
+using Windows.UI.Input;
 using Windows.UI.Xaml.Controls;
 
 namespace Palette
@@ -20,6 +18,11 @@ namespace Palette
         private readonly float _radiusCenter;
         private readonly float _radiusGetColor;
 
+        byte Argb_A = 255;
+        int _pointGetColor;
+        bool _isGetColor;
+
+        List<Color> wheelColors = new List<Color>();
 
         public Win2dPicker()
         {
@@ -30,6 +33,7 @@ namespace Palette
             _radiusMin = 70;
             _radiusCenter = 40;
             _radiusGetColor = 20;
+
         }
 
         private void Canvas_Draw(Microsoft.Graphics.Canvas.UI.Xaml.CanvasControl sender, Microsoft.Graphics.Canvas.UI.Xaml.CanvasDrawEventArgs args)
@@ -38,22 +42,20 @@ namespace Palette
             float centerY = _centerVector.Y;
             float radiusMax = _radiusMax;
             float radiusMin = _radiusMin;
-            byte a = 255;
 
-            List<Color> wheelColors = new List<Color>();
-            for (byte i = 0; i < 255; i++) wheelColors.Add(Color.FromArgb(a, 255, i, 0));
-            for (byte i = 255; i > 0; i--) wheelColors.Add(Color.FromArgb(a, i, 255, 0));
-            for (byte i = 0; i < 255; i++) wheelColors.Add(Color.FromArgb(a, 0, 255, i));
-            for (byte i = 255; i > 0; i--) wheelColors.Add(Color.FromArgb(a, 0, i, 255));
-            for (byte i = 0; i < 255; i++) wheelColors.Add(Color.FromArgb(a, i, 0, 255));
-            for (byte i = 255; i > 0; i--) wheelColors.Add(Color.FromArgb(a, 255, 0, i));
-            // 创建路径变量
+
+            for (byte i = 0; i < 255; i++) wheelColors.Add(Color.FromArgb(Argb_A, 255, i, 0));
+            for (byte i = 255; i > 0; i--) wheelColors.Add(Color.FromArgb(Argb_A, i, 255, 0));
+            for (byte i = 0; i < 255; i++) wheelColors.Add(Color.FromArgb(Argb_A, 0, 255, i));
+            for (byte i = 255; i > 0; i--) wheelColors.Add(Color.FromArgb(Argb_A, 0, i, 255));
+            for (byte i = 0; i < 255; i++) wheelColors.Add(Color.FromArgb(Argb_A, i, 0, 255));
+            for (byte i = 255; i > 0; i--) wheelColors.Add(Color.FromArgb(Argb_A, 255, 0, i));
+            // 创建路径变量                                              
             int colorCount = wheelColors.Count;     // 颜色数量
             Double angel = 360.0 / colorCount;      // 计算夹角(注：计算参数必须为浮点数，否则结果为0)
             Double rotate = 0;                      // 起始角度
             float pointX, pointY;                  // 缓存绘图路径点
 
-            // 计算绘图路径
             wheelColors.ForEach((color) =>
             {
                 pointX = centerX + radiusMin * (float)Math.Cos(rotate * Math.PI / 180);
@@ -69,18 +71,16 @@ namespace Palette
                 path.AddLine(point3);
                 path.EndFigure(CanvasFigureLoop.Open);
                 CanvasGeometry apple = CanvasGeometry.CreatePath(path);
-                args.DrawingSession.DrawGeometry(apple,color);
-
-                args.DrawingSession.DrawCircle(_centerVector, _radiusCenter, color);
-                args.DrawingSession.FillCircle(_centerVector, _radiusCenter, color);
-
-              
+                args.DrawingSession.DrawGeometry(apple, color);
             });
+
             Vector2 point = new Vector2() { X = centerX, Y = centerY };
             float redius = (radiusMax - radiusMin) / 2 + radiusMin;
-            Vector2[] p = GetPoints(point, (int)redius, 100);
+            Vector2[] p = GetPoints(point, (int)redius, wheelColors.Count);
 
-            args.DrawingSession.DrawCircle(p[10], _radiusGetColor, Colors.Wheat);
+            args.DrawingSession.DrawCircle(_centerVector, _radiusCenter, wheelColors[_pointGetColor]);
+            args.DrawingSession.FillCircle(_centerVector, _radiusCenter, wheelColors[_pointGetColor]);
+            args.DrawingSession.DrawCircle(p[_pointGetColor], _radiusGetColor, Colors.Wheat);
         }
 
         /// <summary>
@@ -101,5 +101,47 @@ namespace Palette
             return point;
         }
 
+        private void slider_ValueChanged(object sender, Windows.UI.Xaml.Controls.Primitives.RangeBaseValueChangedEventArgs e)
+        {
+            Argb_A = (Byte)slider.Value;
+            canvasControl.Invalidate();
+        }
+
+        private void canvasControl_PointerPressed(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            e.Handled = true;
+            _isGetColor = true;
+        }
+
+        private void canvasControl_PointerMoved(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            e.Handled = true;
+
+            if (_isGetColor)
+            {
+                PointerPoint p = e.GetCurrentPoint(canvasControl);
+
+                double x = canvasControl.Width / wheelColors.Count;
+                double y = canvasControl.Height / wheelColors.Count;
+
+                if (p.Position.X > p.Position.Y)
+                {
+                    _pointGetColor = (int)(p.Position.X / x);
+                    canvasControl.Invalidate();
+                }
+                else
+                {
+                    _pointGetColor = (int)(p.Position.Y / y);
+                    canvasControl.Invalidate();
+                }
+            }
+
+        }
+
+        private void canvasControl_PointerReleased(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            e.Handled = true;
+            _isGetColor = false;
+        }
     }
 }
