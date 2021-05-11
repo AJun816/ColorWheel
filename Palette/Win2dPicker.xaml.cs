@@ -138,14 +138,14 @@ namespace Palette
                 
 
 
-                if (p.Position.X > p.Position.Y)
+                if (pointer.Position.X > pointer.Position.Y)
                 {
-                    _pointGetColor = (int)(p.Position.X / x);
+                    _pointGetColor = (int)(pointer.Position.X / x);
                     canvasControl.Invalidate();
                 }
                 else
                 {
-                    _pointGetColor = (int)(p.Position.Y / y);
+                    _pointGetColor = (int)(pointer.Position.Y / y);
                     canvasControl.Invalidate();
                 }
             }
