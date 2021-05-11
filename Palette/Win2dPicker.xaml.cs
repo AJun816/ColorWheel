@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Numerics;
 using System.Threading;
 using Windows.Foundation;
+using Windows.System.Threading;
 using Windows.UI;
 using Windows.UI.Input;
 using Windows.UI.Xaml.Controls;
@@ -22,13 +23,21 @@ namespace Palette
         byte Argb_A = 255;
         int _pointGetColor;
         bool _isGetColor;
+        Point _pressedPointer = new Point();
 
         List<Color> wheelColors = new List<Color>();
 
-        public Win2dPicker()
+        System.Timers.Timer timer = new System.Timers.Timer(50);   //实例化Timer类，设置间隔时间为10000毫秒；   
+   
+
+    public Win2dPicker()
         {
             this.InitializeComponent();
             CreateWheelColors();
+
+            timer.Elapsed += new System.Timers.ElapsedEventHandler(canvasInvalidate); //到达时间的时候执行事件；   
+            timer.AutoReset = true;   //设置是执行一次（false）还是一直执行(true)；   
+            timer.Enabled = true;
         }
         private void CreateWheelColors()
         {
@@ -76,8 +85,10 @@ namespace Palette
             float redius = (radiusMax - radiusMin) / 2 + radiusMin;
             Vector2[] p = GetPoints(point, (int)redius, wheelColors.Count);
 
-            args.DrawingSession.DrawCircle(_centerVector, _radiusCenter, wheelColors[_pointGetColor]);
-            args.DrawingSession.FillCircle(_centerVector, _radiusCenter, wheelColors[_pointGetColor]);
+            Color centercolor =  wheelColors[_pointGetColor];
+            centercolor.A = Argb_A;
+            args.DrawingSession.DrawCircle(_centerVector, _radiusCenter, centercolor);
+            args.DrawingSession.FillCircle(_centerVector, _radiusCenter, centercolor);
             args.DrawingSession.DrawCircle(p[_pointGetColor], _radiusGetColor, Colors.Wheat);
         }
 
@@ -99,6 +110,13 @@ namespace Palette
             return point;
         }
 
+
+
+        private void canvasInvalidate(object source, System.Timers.ElapsedEventArgs e)
+        {
+            canvasControl.Invalidate();
+        }
+
         private void slider_ValueChanged(object sender, Windows.UI.Xaml.Controls.Primitives.RangeBaseValueChangedEventArgs e)
         {
             Argb_A = (Byte)slider.Value;
@@ -109,6 +127,10 @@ namespace Palette
         private void canvasControl_PointerPressed(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
             e.Handled = true;
+            PointerPoint pressedPointer = e.GetCurrentPoint(canvasControl);
+            _pressedPointer = new Point(pressedPointer.Position.X,pressedPointer.Position.Y);
+            timer.Start();
+
             _isGetColor = true;
         }
 
@@ -120,31 +142,92 @@ namespace Palette
             {
                 PointerPoint pointer = e.GetCurrentPoint(canvasControl);
 
-                Point newPointer = new Point();
-                Point p2 = new Point(0, 1000);
-                Point p3 = new Point(500, 0);
-                Point p4 = new Point(1000, 0);
-
-                if (newPointer.X > pointer.Position.X)
-                {
-
-                }
-
                 double x = canvasControl.Width / wheelColors.Count;
                 double y = canvasControl.Height / wheelColors.Count;
+                int i = wheelColors.Count;
 
-                
-
-
-                if (pointer.Position.X > pointer.Position.Y)
+                if (_pointGetColor>i)
                 {
-                    _pointGetColor = (int)(pointer.Position.X / x);
-                    canvasControl.Invalidate();
+                    _pointGetColor = 0;
                 }
-                else
+                else if (_pointGetColor <0)
                 {
-                    _pointGetColor = (int)(pointer.Position.Y / y);
-                    canvasControl.Invalidate();
+                    _pointGetColor = i;
+                }
+          
+
+                if (_pressedPointer.X > pointer.Position.X && _pressedPointer.X - pointer.Position.X>x)
+                {
+                    //向左
+                    //  double ratioLeft =(_pressedPointer.X - pointer.Position.X) / 400/ x;
+                    if (_pointGetColor > i)
+                    {
+                        _pointGetColor = 0;
+                    }
+                    else if (_pointGetColor < 0)
+                    {
+                        _pointGetColor = i;
+                    }
+
+                    _pointGetColor --;
+                   
+                    //_pointGetColor = (int)ratioLeft;
+                    //canvasControl.Invalidate();
+                }
+                else if (_pressedPointer.X < pointer.Position.X && pointer.Position.X - _pressedPointer.X>x)
+                {
+                    //向右
+                    //double ratioRight = (pointer.Position.X - _pressedPointer.X) / 400 / x;
+
+                    if (_pointGetColor > i)
+                    {
+                        _pointGetColor = 0;
+                    }
+                    else if (_pointGetColor < 0)
+                    {
+                        _pointGetColor = i;
+                    }
+
+                    _pointGetColor++;
+                    //_pointGetColor = (int)ratioRight;
+                    //canvasControl.Invalidate();
+                }
+                else if (_pressedPointer.Y < pointer.Position.Y && pointer.Position.Y - _pressedPointer.Y>y)
+                {
+                    //向上
+                    // double ratioTop = (pointer.Position.Y - _pressedPointer.Y) / 400 / y;
+
+                    if (_pointGetColor > i)
+                    {
+                        _pointGetColor = 0;
+                    }
+                    else if (_pointGetColor < 0)
+                    {
+                        _pointGetColor = i;
+                    }
+
+
+                    _pointGetColor--;
+                    //_pointGetColor = (int)ratioTop;
+                    //canvasControl.Invalidate();
+                }
+                else 
+                {
+                    //向下
+                    // double ratioBottom = (_pressedPointer.Y- pointer.Position.Y) / 400 / y;
+
+                    if (_pointGetColor > i)
+                    {
+                        _pointGetColor = 0;
+                    }
+                    else if (_pointGetColor < 0)
+                    {
+                        _pointGetColor = i;
+                    }
+
+                    _pointGetColor++;
+                    //_pointGetColor = (int)ratioBottom;
+                   //canvasControl.Invalidate();
                 }
             }
         }
@@ -152,12 +235,14 @@ namespace Palette
         private void canvasControl_PointerReleased(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
             e.Handled = true;
+            timer.Stop();
             _isGetColor = false;
         }
 
         private void canvasControl_PointerExited(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
             e.Handled = true;
+            timer.Stop();
             _isGetColor = false;
         }
     }
