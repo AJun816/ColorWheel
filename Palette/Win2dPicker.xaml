@@ -322,6 +322,7 @@
             PointerMoved="canvasControl_PointerMoved"
             PointerReleased="canvasControl_PointerReleased"
             PointerExited="canvasControl_PointerExited"
+            Unloaded="canvasControl_Unloaded"
             />
 
 

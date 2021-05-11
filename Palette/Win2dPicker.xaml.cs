@@ -3,12 +3,14 @@ using Microsoft.Graphics.Canvas.UI.Xaml;
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using System.Runtime.InteropServices;
 using System.Threading;
 using Windows.Foundation;
 using Windows.System.Threading;
 using Windows.UI;
 using Windows.UI.Input;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Media;
 
 namespace Palette
 {
@@ -21,16 +23,18 @@ namespace Palette
         private readonly float _radiusGetColor = 20;
 
         byte Argb_A = 255;
-        int _pointGetColor;
         bool _isGetColor;
-        Point _pressedPointer = new Point();
+        Vector2 _getColorPointer = new Vector2(294,198);
+        Vector2 _getColorPointer1 = new Vector2(270, 200);
+        Vector2[] _getColorPoint;
+        int _pointGetColor;
+        Color centercolors = new Color() { A =255,R = 255,G = 0,B =0};
 
         List<Color> wheelColors = new List<Color>();
 
         System.Timers.Timer timer = new System.Timers.Timer(50);   //实例化Timer类，设置间隔时间为10000毫秒；   
-   
 
-    public Win2dPicker()
+        public Win2dPicker()
         {
             this.InitializeComponent();
             CreateWheelColors();
@@ -73,49 +77,61 @@ namespace Palette
                 pointY = centerY + radiusMax * (float)Math.Sin(rotate * Math.PI / 180);
                 Vector2 point3 = new Vector2(pointX, pointY);
 
+                double d = Angle(_centerVector, _getColorPointer1, _getColorPointer);
+                //double d = Math.Atan2((_getColorPointer1.Y - _centerVector.Y), (_getColorPointer1.X - _centerVector.X)) * 180 / Math.PI;
+                d = Math.Round(d, 2);
+                double r = Math.Round(rotate, 2);
+                if (d == r)
+                {
+                    centercolors = color;
+                }
+
                 CanvasPathBuilder path = new CanvasPathBuilder(sender);
                 path.BeginFigure(point1);
                 path.AddLine(point3);
-                path.EndFigure(CanvasFigureLoop.Open);
-                CanvasGeometry apple = CanvasGeometry.CreatePath(path);
+                path.EndFigure(CanvasFigureLoop.Open);               
+                CanvasGeometry apple = CanvasGeometry.CreatePath(path);  
+                
                 args.DrawingSession.DrawGeometry(apple, color);
             });
+         
 
-            Vector2 point = new Vector2() { X = centerX, Y = centerY };
-            float redius = (radiusMax - radiusMin) / 2 + radiusMin;
-            Vector2[] p = GetPoints(point, (int)redius, wheelColors.Count);
+            centercolors.A = Argb_A;
+            args.DrawingSession.FillCircle(_centerVector, _radiusCenter, centercolors);
+            args.DrawingSession.DrawCircle(_getColorPointer, _radiusGetColor, Colors.Wheat);
 
-            Color centercolor =  wheelColors[_pointGetColor];
-            centercolor.A = Argb_A;
-            args.DrawingSession.DrawCircle(_centerVector, _radiusCenter, centercolor);
-            args.DrawingSession.FillCircle(_centerVector, _radiusCenter, centercolor);
-            args.DrawingSession.DrawCircle(p[_pointGetColor], _radiusGetColor, Colors.Wheat);
+            //LinearGradientBrush myLinearGradientBrush = new LinearGradientBrush();
+            //myLinearGradientBrush.StartPoint = new Point(0, 1);
+            //myLinearGradientBrush.EndPoint = new Point(1, 0);
+            //myLinearGradientBrush.GradientStops.Add(new GradientStop(Color.FromArgb(255, 255, 255, 255), 0.0));
+            //myLinearGradientBrush.GradientStops.Add(new GradientStop(Color.FromArgb(centercolors.A, centercolors.R, centercolors.G, centercolors.B), 1));
+            //slider.Background = myLinearGradientBrush;
+
+            //slider.Background = new SolidColorBrush(Color.FromArgb(centercolors.A, centercolors.R, centercolors.G, centercolors.B)); 
         }
 
-        /// <summary>
-        /// 获取圆周坐标
-        /// </summary>
-        /// <param name="pointCenter">中心坐标</param>
-        /// <param name="r">半径</param>
-        /// <param name="count">等分分数</param>
-        /// <returns></returns>
-        private Vector2[] GetPoints(Vector2 pointCenter, int r, int count)
+        public static double Angle(Vector2 cen, Vector2 first, Vector2 second)
         {
-            Vector2[] point = new Vector2[count];
-            for (int i = 0; i < count; i++)
-            {
-                point[i].X = (int)(r * Math.Cos((i + 1) * 360 / count * Math.PI / 180)) + pointCenter.X;
-                point[i].Y = (int)(r * Math.Sin((i + 1) * 360 / count * Math.PI / 180)) + pointCenter.Y;
-            }
-            return point;
+            const double M_PI = 3.1415926535897;
+
+            double ma_x = first.X - cen.X;
+            double ma_y = first.Y - cen.Y;
+            double mb_x = second.X - cen.X;
+            double mb_y = second.Y - cen.Y;
+            double v1 = (ma_x * mb_x) + (ma_y * mb_y);
+            double ma_val = Math.Sqrt(ma_x * ma_x + ma_y * ma_y);
+            double mb_val = Math.Sqrt(mb_x * mb_x + mb_y * mb_y);
+            double cosM = v1 / (ma_val * mb_val);
+            double angleAMB = Math.Acos(cosM) * 180 / M_PI;
+
+            return angleAMB;
         }
-
-
 
         private void canvasInvalidate(object source, System.Timers.ElapsedEventArgs e)
         {
             canvasControl.Invalidate();
         }
+
 
         private void slider_ValueChanged(object sender, Windows.UI.Xaml.Controls.Primitives.RangeBaseValueChangedEventArgs e)
         {
@@ -127,11 +143,20 @@ namespace Palette
         private void canvasControl_PointerPressed(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
             e.Handled = true;
-            PointerPoint pressedPointer = e.GetCurrentPoint(canvasControl);
-            _pressedPointer = new Point(pressedPointer.Position.X,pressedPointer.Position.Y);
-            timer.Start();
-
             _isGetColor = true;
+
+            PointerPoint pressedPointer = e.GetCurrentPoint(canvasControl);            
+            if (_isGetColor)
+            {
+                PointerPoint pointer = e.GetCurrentPoint(canvasControl);
+                Vector2 vector = new Vector2();
+                vector.X = (float)pointer.Position.X;
+                vector.Y = (float)pointer.Position.Y;
+                Vector2 vector2 = Vector2.Normalize(vector - _centerVector);
+                _getColorPointer = _centerVector + vector2 * 95;
+                _getColorPointer1 = _centerVector + vector2 * 70;
+            }
+            timer.Start();  
         }
 
         private void canvasControl_PointerMoved(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
@@ -141,109 +166,32 @@ namespace Palette
             if (_isGetColor)
             {
                 PointerPoint pointer = e.GetCurrentPoint(canvasControl);
-
-                double x = canvasControl.Width / wheelColors.Count;
-                double y = canvasControl.Height / wheelColors.Count;
-                int i = wheelColors.Count;
-
-                if (_pointGetColor>i)
-                {
-                    _pointGetColor = 0;
-                }
-                else if (_pointGetColor <0)
-                {
-                    _pointGetColor = i;
-                }
-          
-
-                if (_pressedPointer.X > pointer.Position.X && _pressedPointer.X - pointer.Position.X>x)
-                {
-                    //向左
-                    //  double ratioLeft =(_pressedPointer.X - pointer.Position.X) / 400/ x;
-                    if (_pointGetColor > i)
-                    {
-                        _pointGetColor = 0;
-                    }
-                    else if (_pointGetColor < 0)
-                    {
-                        _pointGetColor = i;
-                    }
-
-                    _pointGetColor --;
-                   
-                    //_pointGetColor = (int)ratioLeft;
-                    //canvasControl.Invalidate();
-                }
-                else if (_pressedPointer.X < pointer.Position.X && pointer.Position.X - _pressedPointer.X>x)
-                {
-                    //向右
-                    //double ratioRight = (pointer.Position.X - _pressedPointer.X) / 400 / x;
-
-                    if (_pointGetColor > i)
-                    {
-                        _pointGetColor = 0;
-                    }
-                    else if (_pointGetColor < 0)
-                    {
-                        _pointGetColor = i;
-                    }
-
-                    _pointGetColor++;
-                    //_pointGetColor = (int)ratioRight;
-                    //canvasControl.Invalidate();
-                }
-                else if (_pressedPointer.Y < pointer.Position.Y && pointer.Position.Y - _pressedPointer.Y>y)
-                {
-                    //向上
-                    // double ratioTop = (pointer.Position.Y - _pressedPointer.Y) / 400 / y;
-
-                    if (_pointGetColor > i)
-                    {
-                        _pointGetColor = 0;
-                    }
-                    else if (_pointGetColor < 0)
-                    {
-                        _pointGetColor = i;
-                    }
-
-
-                    _pointGetColor--;
-                    //_pointGetColor = (int)ratioTop;
-                    //canvasControl.Invalidate();
-                }
-                else 
-                {
-                    //向下
-                    // double ratioBottom = (_pressedPointer.Y- pointer.Position.Y) / 400 / y;
-
-                    if (_pointGetColor > i)
-                    {
-                        _pointGetColor = 0;
-                    }
-                    else if (_pointGetColor < 0)
-                    {
-                        _pointGetColor = i;
-                    }
-
-                    _pointGetColor++;
-                    //_pointGetColor = (int)ratioBottom;
-                   //canvasControl.Invalidate();
-                }
+                Vector2 vector = new Vector2();
+                vector.X = (float)pointer.Position.X;
+                vector.Y = (float)pointer.Position.Y;
+                Vector2 vector2 = Vector2.Normalize(vector- _centerVector);
+                _getColorPointer = _centerVector + vector2 * 95;
             }
         }
 
         private void canvasControl_PointerReleased(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
             e.Handled = true;
-            timer.Stop();
             _isGetColor = false;
+            timer.Stop();            
         }
 
         private void canvasControl_PointerExited(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
             e.Handled = true;
-            timer.Stop();
             _isGetColor = false;
+            timer.Stop();           
+        }
+
+        private void canvasControl_Unloaded(object sender, Windows.UI.Xaml.RoutedEventArgs e)
+        {
+            this.canvasControl.RemoveFromVisualTree();
+            this.canvasControl = null;
         }
     }
 }
