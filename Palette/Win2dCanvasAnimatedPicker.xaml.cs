@@ -1,16 +1,20 @@
 ﻿using Microsoft.Graphics.Canvas.Geometry;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Numerics;
 using Windows.Foundation;
 using Windows.UI;
+using Windows.UI.Core;
 using Windows.UI.Input;
+using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 
 namespace Palette
 {
-    public sealed partial class Win2dPicker : UserControl
+    public sealed partial class Win2dCanvasAnimatedPicker : UserControl
     {
         private readonly Vector2 _centerVector = new Vector2() { X = 200, Y = 200 };
         private readonly float _radiusMax = 120;
@@ -20,24 +24,22 @@ namespace Palette
 
         byte Argb_A = 255;
         bool _isGetColor;
-        Vector2 _getColorPointer = new Vector2(294,198);
+        Vector2 _getColorPointer = new Vector2(294, 198);
         Vector2 _getColorPointer1 = new Vector2(270, 200);
 
-        Color centercolors = new Color() { A =255,R = 255,G = 0,B =0};
+        Color centercolors = new Color() { A = 255, R = 255, G = 0, B = 0 };
+
 
         List<Color> wheelColors = new List<Color>();
 
-        System.Timers.Timer timer = new System.Timers.Timer(50);   //实例化Timer类，设置间隔时间为10000毫秒；   
 
-        public Win2dPicker()
+        public Win2dCanvasAnimatedPicker()
         {
             this.InitializeComponent();
-            CreateWheelColors();
 
-            timer.Elapsed += new System.Timers.ElapsedEventHandler(canvasInvalidate); //到达时间的时候执行事件；   
-            timer.AutoReset = true;   //设置是执行一次（false）还是一直执行(true)；   
-            timer.Enabled = true;
+            CreateWheelColors();
         }
+
         private void CreateWheelColors()
         {
             for (byte i = 0; i < 255; i++) wheelColors.Add(Color.FromArgb(Argb_A, 255, i, 0));
@@ -48,7 +50,7 @@ namespace Palette
             for (byte i = 255; i > 0; i--) wheelColors.Add(Color.FromArgb(Argb_A, 255, 0, i));
         }
 
-        private void Canvas_Draw(Microsoft.Graphics.Canvas.UI.Xaml.CanvasControl sender, Microsoft.Graphics.Canvas.UI.Xaml.CanvasDrawEventArgs args)
+        private void canvasAnimatedControl_Draw(Microsoft.Graphics.Canvas.UI.Xaml.ICanvasAnimatedControl sender, Microsoft.Graphics.Canvas.UI.Xaml.CanvasAnimatedDrawEventArgs args)
         {
             float centerX = _centerVector.X;
             float centerY = _centerVector.Y;
@@ -71,96 +73,99 @@ namespace Palette
                 pointX = centerX + radiusMax * (float)Math.Cos(rotate * Math.PI / 180);
                 pointY = centerY + radiusMax * (float)Math.Sin(rotate * Math.PI / 180);
                 Vector2 point3 = new Vector2(pointX, pointY);
-                               
+
                 double d = Math.Atan2((_getColorPointer.Y - _centerVector.Y), (_getColorPointer.X - _centerVector.X)) * 180 / Math.PI;
                 d = Math.Round(d);
                 double r = Math.Round(rotate);
-                if (d<0)d = d + 360;
-                if (d == r)centercolors = color;
+                if (d < 0) d = d + 360;
+                if (d == r) centercolors = color;
 
-                CanvasPathBuilder path = new CanvasPathBuilder(sender);
-                path.BeginFigure(point1);
-                path.AddLine(point3);
-                path.EndFigure(CanvasFigureLoop.Open);               
-                CanvasGeometry apple = CanvasGeometry.CreatePath(path);  
-                
-                args.DrawingSession.DrawGeometry(apple, color);
+                using (CanvasPathBuilder path = new CanvasPathBuilder(sender))
+                {
+                    path.BeginFigure(point1);
+                    path.AddLine(point3);
+                    path.EndFigure(CanvasFigureLoop.Open);
+
+                    using (CanvasGeometry apple = CanvasGeometry.CreatePath(path))
+                    {
+                        args.DrawingSession.DrawGeometry(apple, color);
+                    }
+                }
             });
-         
+
             centercolors.A = Argb_A;
             args.DrawingSession.FillCircle(_centerVector, _radiusCenter, centercolors);
             args.DrawingSession.DrawCircle(_getColorPointer, _radiusGetColor, Colors.Wheat);
 
-            sliderColor.Color= Color.FromArgb(centercolors.A, centercolors.R, centercolors.G, centercolors.B);
         }
 
-
-        private void canvasInvalidate(object source, System.Timers.ElapsedEventArgs e)
+        private async void canvasAnimatedControl_Update(Microsoft.Graphics.Canvas.UI.Xaml.ICanvasAnimatedControl sender, Microsoft.Graphics.Canvas.UI.Xaml.CanvasAnimatedUpdateEventArgs args)
         {
-            canvasControl.Invalidate();
+            await this.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+             {
+                 sliderColor.Color = Color.FromArgb(centercolors.A, centercolors.R, centercolors.G, centercolors.B);
+             });
         }
 
 
         private void slider_ValueChanged(object sender, Windows.UI.Xaml.Controls.Primitives.RangeBaseValueChangedEventArgs e)
-        {            
+        {
             Argb_A = (Byte)slider.Value;
             _isGetColor = false;
-            canvasControl.Invalidate();
         }
 
-        private void canvasControl_PointerPressed(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
+        private void canvasAnimatedControl_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
             e.Handled = true;
             _isGetColor = true;
 
-            PointerPoint pressedPointer = e.GetCurrentPoint(canvasControl);            
+            PointerPoint pressedPointer = e.GetCurrentPoint(canvasAnimatedControl);
             if (_isGetColor)
             {
-                PointerPoint pointer = e.GetCurrentPoint(canvasControl);
+                PointerPoint pointer = e.GetCurrentPoint(canvasAnimatedControl);
                 Vector2 vector = new Vector2();
                 vector.X = (float)pointer.Position.X;
                 vector.Y = (float)pointer.Position.Y;
                 Vector2 vector2 = Vector2.Normalize(vector - _centerVector);
-                
+
                 _getColorPointer = _centerVector + vector2 * 95;
                 _getColorPointer1 = _centerVector + vector2 * 70;
             }
-            timer.Start();  
         }
 
-        private void canvasControl_PointerMoved(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
+        private void canvasAnimatedControl_PointerMoved(object sender, PointerRoutedEventArgs e)
         {
             e.Handled = true;
 
             if (_isGetColor)
             {
-                PointerPoint pointer = e.GetCurrentPoint(canvasControl);
+                PointerPoint pointer = e.GetCurrentPoint(canvasAnimatedControl);
                 Vector2 vector = new Vector2();
                 vector.X = (float)pointer.Position.X;
                 vector.Y = (float)pointer.Position.Y;
-                Vector2 vector2 = Vector2.Normalize(vector- _centerVector);
+                Vector2 vector2 = Vector2.Normalize(vector - _centerVector);
                 _getColorPointer = _centerVector + vector2 * 95;
             }
         }
 
-        private void canvasControl_PointerReleased(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
+        private void canvasAnimatedControl_PointerReleased(object sender, PointerRoutedEventArgs e)
         {
             e.Handled = true;
             _isGetColor = false;
-            timer.Stop();            
+
         }
 
-        private void canvasControl_PointerExited(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
+        private void canvasAnimatedControl_PointerExited(object sender, PointerRoutedEventArgs e)
         {
             e.Handled = true;
             _isGetColor = false;
-            timer.Stop();           
         }
 
-        private void canvasControl_Unloaded(object sender, Windows.UI.Xaml.RoutedEventArgs e)
+
+        private void canvasAnimatedControll_Unloaded(object sender, RoutedEventArgs e)
         {
-            this.canvasControl.RemoveFromVisualTree();
-            this.canvasControl = null;
+            this.canvasAnimatedControl.RemoveFromVisualTree();
+            this.canvasAnimatedControl = null;
         }
     }
 }
