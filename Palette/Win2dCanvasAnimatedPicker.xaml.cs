@@ -1,4 +1,5 @@
-﻿using Microsoft.Graphics.Canvas.Geometry;
+﻿using Microsoft.Graphics.Canvas;
+using Microsoft.Graphics.Canvas.Geometry;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -25,7 +26,6 @@ namespace Palette
         byte Argb_A = 255;
         bool _isGetColor;
         Vector2 _getColorPointer = new Vector2(294, 198);
-        Vector2 _getColorPointer1 = new Vector2(270, 200);
 
         Color centercolors = new Color() { A = 255, R = 255, G = 0, B = 0 };
 
@@ -61,7 +61,9 @@ namespace Palette
             int colorCount = wheelColors.Count;     // 颜色数量
             Double angel = 360.0 / colorCount;      // 计算夹角(注：计算参数必须为浮点数，否则结果为0)
             Double rotate = 0;                      // 起始角度
-            float pointX, pointY;                  // 缓存绘图路径点
+            float pointX, pointY;                   // 缓存绘图路径点
+
+       
 
             wheelColors.ForEach((color) =>
             {
@@ -96,7 +98,6 @@ namespace Palette
             centercolors.A = Argb_A;
             args.DrawingSession.FillCircle(_centerVector, _radiusCenter, centercolors);
             args.DrawingSession.DrawCircle(_getColorPointer, _radiusGetColor, Colors.Wheat);
-
         }
 
         private async void canvasAnimatedControl_Update(Microsoft.Graphics.Canvas.UI.Xaml.ICanvasAnimatedControl sender, Microsoft.Graphics.Canvas.UI.Xaml.CanvasAnimatedUpdateEventArgs args)
@@ -129,7 +130,6 @@ namespace Palette
                 Vector2 vector2 = Vector2.Normalize(vector - _centerVector);
 
                 _getColorPointer = _centerVector + vector2 * 95;
-                _getColorPointer1 = _centerVector + vector2 * 70;
             }
         }
 

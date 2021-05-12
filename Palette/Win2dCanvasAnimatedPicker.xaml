@@ -41,11 +41,11 @@
             Maximum="255"
             Style="{StaticResource SliderStyle1}"
             ValueChanged="slider_ValueChanged"
-            Value="255">
+            Value="127.5">
             <Slider.Background>
                 <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
                     <GradientStop Color="White" />
-                    <GradientStop x:Name="sliderColor" Offset="1" Color="{x:Bind centercolors ,Mode=TwoWay}" />
+                    <GradientStop x:Name="sliderColor" Offset="0.5" Color="{x:Bind centercolors ,Mode=TwoWay}" />
                 </LinearGradientBrush>
             </Slider.Background>
         </Slider>
