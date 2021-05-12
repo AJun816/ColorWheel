@@ -342,7 +342,7 @@
             <Slider.Background>
                 <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
                     <GradientStop Color="White" />
-                    <GradientStop Offset="1" Color="#FFCF1B1B" />
+                    <GradientStop x:Name="sliderColor" Offset="1" Color="#FFCF1B1B" />
                 </LinearGradientBrush>
             </Slider.Background>
         </Slider>

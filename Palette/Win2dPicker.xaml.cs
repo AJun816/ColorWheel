@@ -26,8 +26,7 @@ namespace Palette
         bool _isGetColor;
         Vector2 _getColorPointer = new Vector2(294,198);
         Vector2 _getColorPointer1 = new Vector2(270, 200);
-        Vector2[] _getColorPoint;
-        int _pointGetColor;
+
         Color centercolors = new Color() { A =255,R = 255,G = 0,B =0};
 
         List<Color> wheelColors = new List<Color>();
@@ -76,15 +75,12 @@ namespace Palette
                 pointX = centerX + radiusMax * (float)Math.Cos(rotate * Math.PI / 180);
                 pointY = centerY + radiusMax * (float)Math.Sin(rotate * Math.PI / 180);
                 Vector2 point3 = new Vector2(pointX, pointY);
-
-                double d = Angle(_centerVector, _getColorPointer1, _getColorPointer);
-                //double d = Math.Atan2((_getColorPointer1.Y - _centerVector.Y), (_getColorPointer1.X - _centerVector.X)) * 180 / Math.PI;
-                d = Math.Round(d, 2);
-                double r = Math.Round(rotate, 2);
-                if (d == r)
-                {
-                    centercolors = color;
-                }
+                               
+                double d = Math.Atan2((_getColorPointer.Y - _centerVector.Y), (_getColorPointer.X - _centerVector.X)) * 180 / Math.PI;
+                d = Math.Round(d);
+                double r = Math.Round(rotate);
+                if (d<0)d = d + 360;
+                if (d == r)centercolors = color;
 
                 CanvasPathBuilder path = new CanvasPathBuilder(sender);
                 path.BeginFigure(point1);
@@ -95,37 +91,17 @@ namespace Palette
                 args.DrawingSession.DrawGeometry(apple, color);
             });
          
-
             centercolors.A = Argb_A;
             args.DrawingSession.FillCircle(_centerVector, _radiusCenter, centercolors);
             args.DrawingSession.DrawCircle(_getColorPointer, _radiusGetColor, Colors.Wheat);
 
-            //LinearGradientBrush myLinearGradientBrush = new LinearGradientBrush();
-            //myLinearGradientBrush.StartPoint = new Point(0, 1);
-            //myLinearGradientBrush.EndPoint = new Point(1, 0);
-            //myLinearGradientBrush.GradientStops.Add(new GradientStop(Color.FromArgb(255, 255, 255, 255), 0.0));
-            //myLinearGradientBrush.GradientStops.Add(new GradientStop(Color.FromArgb(centercolors.A, centercolors.R, centercolors.G, centercolors.B), 1));
-            //slider.Background = myLinearGradientBrush;
+            LinearGradientBrush myLinearGradientBrush = new LinearGradientBrush();
+            myLinearGradientBrush.StartPoint = new Point(0, 1);
+            myLinearGradientBrush.EndPoint = new Point(1, 0);
 
-            //slider.Background = new SolidColorBrush(Color.FromArgb(centercolors.A, centercolors.R, centercolors.G, centercolors.B)); 
+            sliderColor.Color= Color.FromArgb(centercolors.A, centercolors.R, centercolors.G, centercolors.B);
         }
 
-        public static double Angle(Vector2 cen, Vector2 first, Vector2 second)
-        {
-            const double M_PI = 3.1415926535897;
-
-            double ma_x = first.X - cen.X;
-            double ma_y = first.Y - cen.Y;
-            double mb_x = second.X - cen.X;
-            double mb_y = second.Y - cen.Y;
-            double v1 = (ma_x * mb_x) + (ma_y * mb_y);
-            double ma_val = Math.Sqrt(ma_x * ma_x + ma_y * ma_y);
-            double mb_val = Math.Sqrt(mb_x * mb_x + mb_y * mb_y);
-            double cosM = v1 / (ma_val * mb_val);
-            double angleAMB = Math.Acos(cosM) * 180 / M_PI;
-
-            return angleAMB;
-        }
 
         private void canvasInvalidate(object source, System.Timers.ElapsedEventArgs e)
         {
@@ -134,7 +110,7 @@ namespace Palette
 
 
         private void slider_ValueChanged(object sender, Windows.UI.Xaml.Controls.Primitives.RangeBaseValueChangedEventArgs e)
-        {
+        {            
             Argb_A = (Byte)slider.Value;
             _isGetColor = false;
             canvasControl.Invalidate();
@@ -153,6 +129,7 @@ namespace Palette
                 vector.X = (float)pointer.Position.X;
                 vector.Y = (float)pointer.Position.Y;
                 Vector2 vector2 = Vector2.Normalize(vector - _centerVector);
+                
                 _getColorPointer = _centerVector + vector2 * 95;
                 _getColorPointer1 = _centerVector + vector2 * 70;
             }
