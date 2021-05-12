@@ -102,9 +102,9 @@ namespace Palette
         private async void canvasAnimatedControl_Update(Microsoft.Graphics.Canvas.UI.Xaml.ICanvasAnimatedControl sender, Microsoft.Graphics.Canvas.UI.Xaml.CanvasAnimatedUpdateEventArgs args)
         {
             await this.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-             {
-                 sliderColor.Color = Color.FromArgb(centercolors.A, centercolors.R, centercolors.G, centercolors.B);
-             });
+            {
+                sliderColor.Color = Color.FromArgb(centercolors.A, centercolors.R, centercolors.G, centercolors.B);
+            });
         }
 
 
