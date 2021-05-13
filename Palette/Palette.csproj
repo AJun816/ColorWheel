@@ -127,7 +127,10 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Common\ColorConverter.cs" />
+    <Compile Include="Common\ColorToHSLConverter.cs" />
+    <Compile Include="Common\HSL.cs" />
+    <Compile Include="Common\HSLToColorConverter.cs" />
+    <Compile Include="Common\RGB.cs" />
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>

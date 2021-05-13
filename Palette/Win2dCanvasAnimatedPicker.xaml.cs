@@ -1,7 +1,6 @@
 ﻿using Microsoft.Graphics.Canvas;
 using Microsoft.Graphics.Canvas.Geometry;
 using Microsoft.Graphics.Canvas.UI.Xaml;
-using Palette.Common;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;

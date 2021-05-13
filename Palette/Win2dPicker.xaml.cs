@@ -1,5 +1,5 @@
 ﻿using Microsoft.Graphics.Canvas.Geometry;
-using Palette.Common;
+using RGBHSL;
 using System;
 using System.Collections.Generic;
 using System.Numerics;
@@ -27,7 +27,10 @@ namespace Palette
         Color centercolors = new Color() { A =255,R = 255,G = 0,B =0};
 
         List<Color> _wheelColors = new List<Color>();
-        List<ColorHSL> _colorHSLs = new List<ColorHSL>();
+        List<HSL> _hSLs = new List<HSL>();
+
+        ColorToHSLConverter _toHSL = new ColorToHSLConverter();
+        HSLToColorConverter _toColor = new HSLToColorConverter();
 
         System.Timers.Timer timer = new System.Timers.Timer(50);   //实例化Timer类，设置间隔时间为10000毫秒；   
 
@@ -52,21 +55,19 @@ namespace Palette
             foreach (var color in _wheelColors)
             {
                 System.Drawing.Color c = System.Drawing.Color.FromArgb(color.A, color.R, color.G, color.B);
-                ColorHSL colorHSL = ColorConverter.RgbToHsl(c);
-                _colorHSLs.Add(colorHSL);
+                HSL hsl = _toHSL.Convert(c);
+                _hSLs.Add(hsl);
             }
         }
 
-        private void ChangeWheelColors(float hsl_L)
+        private void ChangeWheelColors(decimal hsl_L)
         {
             _wheelColors.Clear();
-            foreach (var colorHSL in _colorHSLs)
+            foreach (var colorHSL in _hSLs)
             {
-                colorHSL.L = hsl_L / 100f;
-                colorHSL.H= (float)Math.Round(colorHSL.H,2);
-                colorHSL.S = (float)Math.Round(colorHSL.S, 2);
+                colorHSL.L = hsl_L / 100M;
 
-                System.Drawing.Color color = ColorConverter.HslToRgb(colorHSL);
+                System.Drawing.Color color = _toColor.Convert(colorHSL);
                 _wheelColors.Add(Color.FromArgb(color.A, color.R, color.G, color.B));
             }
         }
@@ -125,9 +126,8 @@ namespace Palette
 
         private void slider_ValueChanged(object sender, Windows.UI.Xaml.Controls.Primitives.RangeBaseValueChangedEventArgs e)
         {            
-            //Argb_A = (Byte)slider.Value;
             _isGetColor = false;
-            ChangeWheelColors((float)slider.Value);
+            ChangeWheelColors((decimal)slider.Value);
             canvasControl.Invalidate();
         }
 
