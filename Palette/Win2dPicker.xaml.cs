@@ -63,6 +63,9 @@ namespace Palette
             foreach (var colorHSL in _colorHSLs)
             {
                 colorHSL.L = hsl_L / 100f;
+                colorHSL.H= (float)Math.Round(colorHSL.H,2);
+                colorHSL.S = (float)Math.Round(colorHSL.S, 2);
+
                 System.Drawing.Color color = ColorConverter.HslToRgb(colorHSL);
                 _wheelColors.Add(Color.FromArgb(color.A, color.R, color.G, color.B));
             }

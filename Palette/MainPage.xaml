@@ -8,9 +8,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
     mc:Ignorable="d">
-
     <Grid>
-        <local:Win2dPicker/>
+        <local:Win2dPicker />
     </Grid>
-
 </Page>

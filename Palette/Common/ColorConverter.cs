@@ -124,6 +124,69 @@ namespace Palette.Common
             return Convert.ToInt32(255 * Color_C);
         }
 
+
+        public static System.Drawing.Color HslToRgbs(ColorHSL hsl)
+        {
+            double Hue, Saturation, Lightness;
+            Hue = (double)hsl.H;
+            Saturation = (double)hsl.S;
+            Lightness = (double)hsl.L;
+
+            if (Hue < 0) Hue = 0.0;
+            if (Saturation < 0) Saturation = 0.0;
+            if (Lightness < 0) Lightness = 0.0;
+            if (Hue >= 360) Hue = 359.0;
+            if (Saturation > 255) Saturation = 255;
+            if (Lightness > 255) Lightness = 255;
+            Saturation = Saturation / 255.0;
+            Lightness = Lightness / 255.0;
+            double C = (1 - Math.Abs(2 * Lightness - 1)) * Saturation;
+            double hh = Hue / 60.0;
+            double X = C * (1 - Math.Abs(hh % 2 - 1));
+            double r = 0, g = 0, b = 0;
+            if (hh >= 0 && hh < 1)
+            {
+                r = C;
+                g = X;
+            }
+            else if (hh >= 1 && hh < 2)
+            {
+                r = X;
+                g = C;
+            }
+            else if (hh >= 2 && hh < 3)
+            {
+                g = C;
+                b = X;
+            }
+            else if (hh >= 3 && hh < 4)
+            {
+                g = X;
+                b = C;
+            }
+            else if (hh >= 4 && hh < 5)
+            {
+                r = X;
+                b = C;
+            }
+            else
+            {
+                r = C;
+                b = X;
+            }
+            double m = Lightness - C / 2;
+            r += m;
+            g += m;
+            b += m;
+            r = r * 255.0;
+            g = g * 255.0;
+            b = b * 255.0;
+            r = Math.Round(r);
+            g = Math.Round(g);
+            b = Math.Round(b);
+            return System.Drawing.Color.FromArgb((int)r, (int)g, (int)b);
+        }
+
     }
 
     public class ColorHSL
