@@ -27,8 +27,6 @@ namespace RGBHSL
             return hsl;
         }
 
-
-
         private RGB GetRGBFromColor(Color color)
         {
             RGB rgb = new RGB();
@@ -38,14 +36,10 @@ namespace RGBHSL
             return rgb;
         }
 
-
-
         private decimal GetL(decimal max, decimal min)
         {
             return (max + min) / 2M;
         }
-
-
 
         private decimal GetH(RGB rgb, decimal max, decimal chroma)
         {
@@ -58,8 +52,6 @@ namespace RGBHSL
                 h = ((rgb.R - rgb.G) / chroma) + 4M;
             return 60M * ((h + 6M) % 6M);
         }
-
-
 
         private decimal GetS(decimal l, decimal chroma)
         {
