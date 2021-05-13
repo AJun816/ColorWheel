@@ -40,10 +40,10 @@
             VerticalAlignment="Center"
             BorderThickness="10"
             Foreground="Transparent"
-            Maximum="255"
+            Maximum="100"
             Style="{StaticResource SliderStyle1}"
             ValueChanged="slider_ValueChanged"
-            Value="255">
+            Value="50">
             <Slider.Background>
                 <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
                     <GradientStop Color="White" />

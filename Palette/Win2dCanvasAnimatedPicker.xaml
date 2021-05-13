@@ -41,7 +41,7 @@
             Maximum="255"
             Style="{StaticResource SliderStyle1}"
             ValueChanged="slider_ValueChanged"
-            Value="127.5">
+            Value="127">
             <Slider.Background>
                 <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
                     <GradientStop Color="White" />

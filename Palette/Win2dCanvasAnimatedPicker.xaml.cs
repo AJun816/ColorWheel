@@ -1,5 +1,7 @@
 ﻿using Microsoft.Graphics.Canvas;
 using Microsoft.Graphics.Canvas.Geometry;
+using Microsoft.Graphics.Canvas.UI.Xaml;
+using Palette.Common;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -17,38 +19,38 @@ namespace Palette
 {
     public sealed partial class Win2dCanvasAnimatedPicker : UserControl
     {
-        private readonly Vector2 _centerVector = new Vector2() { X = 200, Y = 200 };
-        private readonly float _radiusMax = 120;
-        private readonly float _radiusMin = 70;
-        private readonly float _radiusCenter = 40;
-        private readonly float _radiusGetColor = 20;
+        readonly Vector2 _centerVector = new Vector2() { X = 200, Y = 200 };
+        readonly float _radiusMax = 120;
+        readonly float _radiusMin = 70;
+        readonly float _radiusCenter = 40;
+        readonly float _radiusGetColor = 20;
 
         byte Argb_A = 255;
         bool _isGetColor;
         Vector2 _getColorPointer = new Vector2(294, 198);
-
         Color centercolors = new Color() { A = 255, R = 255, G = 0, B = 0 };
 
-
-        List<Color> wheelColors = new List<Color>();
-
+        List<Color> _wheelColors = new List<Color>();
 
         public Win2dCanvasAnimatedPicker()
         {
             this.InitializeComponent();
-
             CreateWheelColors();
         }
 
+        /// <summary>
+        /// 创建颜色
+        /// </summary>
         private void CreateWheelColors()
         {
-            for (byte i = 0; i < 255; i++) wheelColors.Add(Color.FromArgb(Argb_A, 255, i, 0));
-            for (byte i = 255; i > 0; i--) wheelColors.Add(Color.FromArgb(Argb_A, i, 255, 0));
-            for (byte i = 0; i < 255; i++) wheelColors.Add(Color.FromArgb(Argb_A, 0, 255, i));
-            for (byte i = 255; i > 0; i--) wheelColors.Add(Color.FromArgb(Argb_A, 0, i, 255));
-            for (byte i = 0; i < 255; i++) wheelColors.Add(Color.FromArgb(Argb_A, i, 0, 255));
-            for (byte i = 255; i > 0; i--) wheelColors.Add(Color.FromArgb(Argb_A, 255, 0, i));
+            for (byte i = 0; i < 255; i++) _wheelColors.Add(Color.FromArgb(Argb_A, 255, i, 0));
+            for (byte i = 255; i > 0; i--) _wheelColors.Add(Color.FromArgb(Argb_A, i, 255, 0));
+            for (byte i = 0; i < 255; i++) _wheelColors.Add(Color.FromArgb(Argb_A, 0, 255, i));
+            for (byte i = 255; i > 0; i--) _wheelColors.Add(Color.FromArgb(Argb_A, 0, i, 255));
+            for (byte i = 0; i < 255; i++) _wheelColors.Add(Color.FromArgb(Argb_A, i, 0, 255));
+            for (byte i = 255; i > 0; i--) _wheelColors.Add(Color.FromArgb(Argb_A, 255, 0, i));
         }
+
 
         private void canvasAnimatedControl_Draw(Microsoft.Graphics.Canvas.UI.Xaml.ICanvasAnimatedControl sender, Microsoft.Graphics.Canvas.UI.Xaml.CanvasAnimatedDrawEventArgs args)
         {
@@ -58,14 +60,12 @@ namespace Palette
             float radiusMin = _radiusMin;
 
             // 创建路径变量                                              
-            int colorCount = wheelColors.Count;     // 颜色数量
+            int colorCount = _wheelColors.Count;     // 颜色数量
             Double angel = 360.0 / colorCount;      // 计算夹角(注：计算参数必须为浮点数，否则结果为0)
             Double rotate = 0;                      // 起始角度
-            float pointX, pointY;                   // 缓存绘图路径点
+            float pointX, pointY;                   // 缓存绘图路径点       
 
-       
-
-            wheelColors.ForEach((color) =>
+            _wheelColors.ForEach((color) =>
             {
                 color.A = Argb_A;
                 pointX = centerX + radiusMin * (float)Math.Cos(rotate * Math.PI / 180);
@@ -97,20 +97,22 @@ namespace Palette
 
             centercolors.A = Argb_A;
             args.DrawingSession.FillCircle(_centerVector, _radiusCenter, centercolors);
-            args.DrawingSession.DrawCircle(_getColorPointer, _radiusGetColor, Colors.Wheat);
+            args.DrawingSession.DrawCircle(_getColorPointer, _radiusGetColor, Colors.Wheat);            
         }
+
 
         private async void canvasAnimatedControl_Update(Microsoft.Graphics.Canvas.UI.Xaml.ICanvasAnimatedControl sender, Microsoft.Graphics.Canvas.UI.Xaml.CanvasAnimatedUpdateEventArgs args)
         {
             await this.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
-                sliderColor.Color = Color.FromArgb(centercolors.A, centercolors.R, centercolors.G, centercolors.B);
+                sliderColor.Color = Color.FromArgb(centercolors.A, centercolors.R, centercolors.G, centercolors.B);         
             });
         }
 
-
+       
         private void slider_ValueChanged(object sender, Windows.UI.Xaml.Controls.Primitives.RangeBaseValueChangedEventArgs e)
         {
+     
             Argb_A = (Byte)slider.Value;
             _isGetColor = false;
         }

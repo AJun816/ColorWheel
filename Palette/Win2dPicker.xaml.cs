@@ -1,4 +1,5 @@
 ﻿using Microsoft.Graphics.Canvas.Geometry;
+using Palette.Common;
 using System;
 using System.Collections.Generic;
 using System.Numerics;
@@ -25,7 +26,8 @@ namespace Palette
 
         Color centercolors = new Color() { A =255,R = 255,G = 0,B =0};
 
-        List<Color> wheelColors = new List<Color>();
+        List<Color> _wheelColors = new List<Color>();
+        List<ColorHSL> _colorHSLs = new List<ColorHSL>();
 
         System.Timers.Timer timer = new System.Timers.Timer(50);   //实例化Timer类，设置间隔时间为10000毫秒；   
 
@@ -40,14 +42,31 @@ namespace Palette
         }
         private void CreateWheelColors()
         {
-            for (byte i = 0; i < 255; i++) wheelColors.Add(Color.FromArgb(Argb_A, 255, i, 0));
-            for (byte i = 255; i > 0; i--) wheelColors.Add(Color.FromArgb(Argb_A, i, 255, 0));
-            for (byte i = 0; i < 255; i++) wheelColors.Add(Color.FromArgb(Argb_A, 0, 255, i));
-            for (byte i = 255; i > 0; i--) wheelColors.Add(Color.FromArgb(Argb_A, 0, i, 255));
-            for (byte i = 0; i < 255; i++) wheelColors.Add(Color.FromArgb(Argb_A, i, 0, 255));
-            for (byte i = 255; i > 0; i--) wheelColors.Add(Color.FromArgb(Argb_A, 255, 0, i));
+            for (byte i = 0; i < 255; i++) _wheelColors.Add(Color.FromArgb(Argb_A, 255, i, 0));
+            for (byte i = 255; i > 0; i--) _wheelColors.Add(Color.FromArgb(Argb_A, i, 255, 0));
+            for (byte i = 0; i < 255; i++) _wheelColors.Add(Color.FromArgb(Argb_A, 0, 255, i));
+            for (byte i = 255; i > 0; i--) _wheelColors.Add(Color.FromArgb(Argb_A, 0, i, 255));
+            for (byte i = 0; i < 255; i++) _wheelColors.Add(Color.FromArgb(Argb_A, i, 0, 255));
+            for (byte i = 255; i > 0; i--) _wheelColors.Add(Color.FromArgb(Argb_A, 255, 0, i));
+
+            foreach (var color in _wheelColors)
+            {
+                System.Drawing.Color c = System.Drawing.Color.FromArgb(color.A, color.R, color.G, color.B);
+                ColorHSL colorHSL = ColorConverter.RgbToHsl(c);
+                _colorHSLs.Add(colorHSL);
+            }
         }
 
+        private void ChangeWheelColors(float hsl_L)
+        {
+            _wheelColors.Clear();
+            foreach (var colorHSL in _colorHSLs)
+            {
+                colorHSL.L = hsl_L / 100f;
+                System.Drawing.Color color = ColorConverter.HslToRgb(colorHSL);
+                _wheelColors.Add(Color.FromArgb(color.A, color.R, color.G, color.B));
+            }
+        }
         private void Canvas_Draw(Microsoft.Graphics.Canvas.UI.Xaml.CanvasControl sender, Microsoft.Graphics.Canvas.UI.Xaml.CanvasDrawEventArgs args)
         {
             float centerX = _centerVector.X;
@@ -56,12 +75,12 @@ namespace Palette
             float radiusMin = _radiusMin;
 
             // 创建路径变量                                              
-            int colorCount = wheelColors.Count;     // 颜色数量
+            int colorCount = _wheelColors.Count;     // 颜色数量
             Double angel = 360.0 / colorCount;      // 计算夹角(注：计算参数必须为浮点数，否则结果为0)
             Double rotate = 0;                      // 起始角度
             float pointX, pointY;                  // 缓存绘图路径点
 
-            wheelColors.ForEach((color) =>
+            _wheelColors.ForEach((color) =>
             {
                 color.A = Argb_A;
                 pointX = centerX + radiusMin * (float)Math.Cos(rotate * Math.PI / 180);
@@ -103,8 +122,9 @@ namespace Palette
 
         private void slider_ValueChanged(object sender, Windows.UI.Xaml.Controls.Primitives.RangeBaseValueChangedEventArgs e)
         {            
-            Argb_A = (Byte)slider.Value;
+            //Argb_A = (Byte)slider.Value;
             _isGetColor = false;
+            ChangeWheelColors((float)slider.Value);
             canvasControl.Invalidate();
         }
 

@@ -10,7 +10,7 @@
     mc:Ignorable="d">
 
     <Grid>
-        <local:Win2dCanvasAnimatedPicker/>
+        <local:Win2dPicker/>
     </Grid>
 
 </Page>

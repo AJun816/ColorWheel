@@ -16,28 +16,5 @@ namespace Palette
             this.InitializeComponent();
         }
 
-        private void Canvas_Draw(Microsoft.Graphics.Canvas.UI.Xaml.CanvasControl sender, Microsoft.Graphics.Canvas.UI.Xaml.CanvasDrawEventArgs args)
-        {
-            args.DrawingSession.FillCircle(200, 150, 100, Colors.Green);
-            args.DrawingSession.DrawCircle(200,150,80,Colors.Blue);
-
-            args.DrawingSession.FillCircle(200, 150, 70, Colors.Black);
-
-            args.DrawingSession.FillCircle(200, 150, 40, Colors.Orange);
-
-            args.DrawingSession.DrawCircle(200, 150, 15, Colors.White);
-
-
-            //using (var canvasPathBuilder = new CanvasPathBuilder(args.DrawingSession))
-            //{
-            //    // 这里可以画出 Path 或写出文字 lindexi.github.io
-            //    canvasPathBuilder.BeginFigure(1, 1);
-            //    canvasPathBuilder.AddLine(300, 300);
-            //    canvasPathBuilder.AddLine(1, 300);
-            //    canvasPathBuilder.EndFigure(CanvasFigureLoop.Closed);
-            //    args.DrawingSession.DrawGeometry(CanvasGeometry.CreatePath(canvasPathBuilder), Colors.Gray, 2);
-            //}
-
-        }
     }
 }
